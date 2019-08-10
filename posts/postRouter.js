@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validatePostId, async (req, res) => {
     try {
         const post = await Posts.getById(req.params.id)
     
@@ -27,7 +27,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validatePostId, async (req, res) => {
     try {
         const postId = await Posts.remove(req.params.id)
 
@@ -41,7 +41,7 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', validatePostId, async (req, res) => {
     try {
         const post = await Posts.update(req.params.id, req.body)
 
@@ -57,9 +57,20 @@ router.put('/:id', async (req, res) => {
 
 // custom middleware
 
-// function validatePostId(req, res, next) {
-    
-//     next()
-// };
+async function validatePostId(req, res, next) {
+    try {
+        const {id} = req.params
+        const post = await Posts.getById(id)
+
+        if(post) {
+            req.post = post
+            next()
+        } else {
+            res.status(404).json({message: 'This id was not found'})
+        }
+    } catch(error) {
+        res.status(500).json(error)
+    }
+};
 
 module.exports = router;

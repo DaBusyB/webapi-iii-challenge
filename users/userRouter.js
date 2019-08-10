@@ -4,7 +4,7 @@ const Posts = require('../posts/postDb.js')
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/', validateUser, async (req, res) => {
     try {
         const user = await Users.insert(req.body)
 
@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.post('/:id/posts', async (req, res) => {
+router.post('/:id/posts', validateUserId, validatePost, async (req, res) => {
     try {
         const user = await Users.insert(req.params.id, req.body)
 
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateUserId, async (req, res) => {
     try {
         const user = await Users.getById(req.params.id)
     
@@ -48,7 +48,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.get('/:id/posts', async (req, res) => {
+router.get('/:id/posts', validateUserId, async (req, res) => {
     try {
         const user = await Users.getUserPosts(req.params.id)
     
@@ -62,7 +62,7 @@ router.get('/:id/posts', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateUserId, async (req, res) => {
     try {
     const userId = await Users.remove(req.params.id)
 
@@ -76,7 +76,7 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateUserId, async (req, res) => {
     try {
         const user = await Users.update(req.params.id, req.body)
 
@@ -92,19 +92,52 @@ router.put('/:id', async (req, res) => {
 
 //custom middleware
 
-// function validateUserId(req, res, next) {
+async function validateUserId(req, res, next) {
+    try {
+        const {id} = req.params
+        const user = await Users.getById(id)
 
-//     next()
-// };
+        if(user) {
+            req.user = user
+            next()
+        } else {
+            res.status(404).json({message: 'This id was not found'})
+        }
+    } catch(error) {
+        res.status(500).json(errpr)
+    }
+};
 
-// function validateUser(req, res, next) {
+async function validateUser(req, res, next) {
+    try {
+        const body = req.body
 
-//     next()
-// };
+        if(body) {
+            next()
+        } else if(!body.name) {
+            res.status(400).json({message: 'Missing required name field'})
+        } else {
+            res.status(400).json({message: 'Missing user data'})
+        }
+    } catch(error) {
+        res.status(500).json(errpr)
+    }
+};
 
-// function validatePost(req, res, next) {
+async function validatePost(req, res, next) {
+    try {
+        const body = req.body
 
-//     next()
-// };
+        if(body) {
+            next()
+        } else if(!body.text) {
+            res.status(400).json({message: 'Missing required text field'})
+        } else {
+            res.status(400).json({message: 'Missing post data'})
+        }
+    } catch(error) {
+        res.status(500).json(errpr)
+    }
+};
 
 module.exports = router;
