@@ -27,8 +27,18 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
+    try {
+        const postId = await Posts.remove(req.params.id)
 
+        if(postId > 0) {
+            res.status(200).json({message: 'The post has been deleted'})
+        } else {
+            res.status(404).json({message: 'This post could not be found'})
+        }
+    } catch(error) {
+        res.status(500).json({message: 'There was an error removing this post'})
+    }
 });
 
 router.put('/:id', (req, res) => {
