@@ -40,7 +40,8 @@ router.get('/:id/posts', (req, res) => {
 
 });
 
-router.delete('/:id', async (req, res) => {try {
+router.delete('/:id', async (req, res) => {
+    try {
     const userId = await Users.remove(req.params.id)
 
     if(userId > 0) {
@@ -48,13 +49,23 @@ router.delete('/:id', async (req, res) => {try {
     } else {
         res.status(404).json({message: 'This user could not be found'})
     }
-} catch(error) {
-    res.status(500).json({message: 'There was an error removing this user'})
-}
+    } catch(error) {
+        res.status(500).json({message: 'There was an error removing this user'})
+    }
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
+    try {
+        const user = await Users.update(req.params.id, req.body)
 
+        if(user) {
+            res.status(200).json(user)
+        } else {
+            res.status(404).json({message: 'This user could not be found'})
+        }
+    } catch(error) {
+        res.status(500).json({message: 'There was an error updating this user'})
+    }
 });
 
 //custom middleware
