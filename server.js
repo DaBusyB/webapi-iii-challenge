@@ -8,6 +8,7 @@ const server = express();
 
 server.use(express.json())
 server.use(helmet())
+server.use(logger)
 
 server.use('/api/posts', postRouter)
 server.use('/api/users', userRouter)
@@ -19,7 +20,9 @@ server.get('/', (req, res) => {
 //custom middleware
 
 function logger(req, res, next) {
-
+  const timeStamp = new Date()
+  console.log(`${req.method}, ${req.originalUrl}, ${timeStamp} received`)
+  next()
 };
 
 module.exports = server;
