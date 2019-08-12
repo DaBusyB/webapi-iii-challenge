@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/', validateUser, async (req, res) => {
     try {
-        const user = await Users.insert(req.body)
+        const user = await Users.insert(user)
 
         res.status(201).json(user)
     } catch(error) {
@@ -14,13 +14,15 @@ router.post('/', validateUser, async (req, res) => {
     }
 });
 
-router.post('/:id/posts', validateUserId, validatePost, async (req, res) => {
+router.post('/:id/posts', validateUserId, async (req, res) => {
     try {
-        const user = await Users.insert(req.params.id, req.body)
+        console.log('validateUserId/id/posts endpoint hit')
 
-        res.status(201).json(user)
+        const postId = Posts.insert(req.body)
+        const post = Posts.getById(postId)
+        res.status(201).json(post)
     } catch(error) {
-        res.status(500).json({message: 'There was an error adding the user'})
+        res.status(500).json({message: 'There was an error adding the post'})
     }
 });
 
@@ -104,40 +106,41 @@ async function validateUserId(req, res, next) {
             res.status(404).json({message: 'This id was not found'})
         }
     } catch(error) {
-        res.status(500).json(errpr)
+        res.status(500).json(error)
     }
 };
 
 async function validateUser(req, res, next) {
     try {
-        const body = req.body
+        const user = req.body
 
-        if(body) {
+        if(user.name && Object.keys(user).length > 0) {
+            
             next()
-        } else if(!body.name) {
-            res.status(400).json({message: 'Missing required name field'})
-        } else {
+        } if(!user) {
             res.status(400).json({message: 'Missing user data'})
+        } if(!user.name) {
+            res.status(400).json({message: 'Missing required name field'})
         }
     } catch(error) {
-        res.status(500).json(errpr)
+        res.status(500).json(error)
     }
 };
 
-async function validatePost(req, res, next) {
-    try {
-        const body = req.body
+// async function validatePost(req, res, next) {
+//     try {
+//         const body = req.body
 
-        if(body) {
-            next()
-        } else if(!body.text) {
-            res.status(400).json({message: 'Missing required text field'})
-        } else {
-            res.status(400).json({message: 'Missing post data'})
-        }
-    } catch(error) {
-        res.status(500).json(errpr)
-    }
-};
+//         if(body) {
+//             next()
+//         } else if(!body.text) {
+//             res.status(400).json({message: 'Missing required text field'})
+//         } else {
+//             res.status(400).json({message: 'Missing post data'})
+//         }
+//     } catch(error) {
+//         res.status(500).json(error)
+//     }
+// };
 
 module.exports = router;
