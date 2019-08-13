@@ -5,13 +5,14 @@ const Posts = require('../posts/postDb.js')
 const router = express.Router();
 
 router.post('/', validateUser, async (req, res) => {
-    try {
-        const user = await Users.insert(user)
+    res.status(201).json(user)
+    // try {
+        
 
-        res.status(201).json(user)
-    } catch(error) {
-        res.status(500).json({message: 'There was an error adding the user'})
-    }
+        
+    // } catch(error) {
+    //     res.status(500).json({message: 'There was an error adding the user'})
+    // }
 });
 
 router.post('/:id/posts', validateUserId, async (req, res) => {
@@ -111,15 +112,14 @@ async function validateUserId(req, res, next) {
 };
 
 async function validateUser(req, res, next) {
+        const userInfo = req.body
     try {
-        const user = req.body
-
-        if(user.name && Object.keys(user).length > 0) {
-            
+        if(userInfo && Object.keys(userInfo).length > 0) {
+            const user = await Users.insert(userInfo)
             next()
-        } if(!user) {
+        } else if(!user) {
             res.status(400).json({message: 'Missing user data'})
-        } if(!user.name) {
+        } else if(!user.name) {
             res.status(400).json({message: 'Missing required name field'})
         }
     } catch(error) {
