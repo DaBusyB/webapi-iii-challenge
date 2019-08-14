@@ -5,27 +5,30 @@ const Posts = require('../posts/postDb.js')
 const router = express.Router();
 
 router.post('/', validateUser, async (req, res) => {
-    res.status(201).json(user)
-    // try {
-        
 
-        
-    // } catch(error) {
-    //     res.status(500).json({message: 'There was an error adding the user'})
-    // }
-});
-
-router.post('/:id/posts', validateUserId, async (req, res) => {
     try {
-        console.log('validateUserId/id/posts endpoint hit')
+        const user = await Users.insert(req.body)
+        if (user) {
+          res.status(201).json(user)
+        }
 
-        const postId = Posts.insert(req.body)
-        const post = Posts.getById(postId)
-        res.status(201).json(post)
     } catch(error) {
-        res.status(500).json({message: 'There was an error adding the post'})
+        res.status(500).json({message: 'There was an error adding the user'})
     }
 });
+
+// router.post('/:id/posts', validateUserId, async (req, res) => {
+//     try {
+      
+
+       
+//         res.status(201).json(post)
+//     } catch(error) {
+//         res.status(500).json({
+//             message: 'There was an error adding the post'
+//         })
+//     }
+// });
 
 router.get('/', async (req, res) => {
     try {
@@ -112,19 +115,20 @@ async function validateUserId(req, res, next) {
 };
 
 async function validateUser(req, res, next) {
-        const userInfo = req.body
-    try {
-        if(userInfo && Object.keys(userInfo).length > 0) {
-            const user = await Users.insert(userInfo)
-            next()
-        } else if(!user) {
-            res.status(400).json({message: 'Missing user data'})
-        } else if(!user.name) {
-            res.status(400).json({message: 'Missing required name field'})
-        }
-    } catch(error) {
-        res.status(500).json(error)
+    const userInfo = req.body;
+  
+try {
+    if(userInfo && Object.keys(userInfo).length) {
+        // const user = await Users.insert(userInfo)
+        next()
+    } else if(!Object.keys(userInfo).length) {
+        res.status(400).json({message: 'Missing user data'})
+    } else if(!userInfo.name) {
+        res.status(400).json({message: 'Missing required name field'})
     }
+} catch(error) {
+    res.status(500).json(error)
+}
 };
 
 // async function validatePost(req, res, next) {
