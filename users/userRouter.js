@@ -5,10 +5,11 @@ const Posts = require('../posts/postDb.js')
 const router = express.Router();
 
 router.post('/', validateUser, async (req, res) => {
-
+    const postInfo = {...req.body, user_id: req.params.id}
     try {
         const user = await Users.insert(req.body)
         if (user) {
+            console.log(user.name)
             res.status(201).json(user)
         }
 
@@ -121,7 +122,7 @@ async function validateUser(req, res, next) {
     try {
         if(userInfo && Object.keys(userInfo).length) {
             next()
-        } if(!Object.keys(userInfo.name)) {
+        } if(userInfo.name === "") {
             res.status(400).json({
                 message: 'Missing required name field'
             })
@@ -135,6 +136,28 @@ async function validateUser(req, res, next) {
         res.status(500).json(error)
     }
 };
+
+// async function validateUser(req, res, next) {
+//     console.log("validateUser invoked")
+//         const userInfo = req.body
+//         console.log("userInfo: ", userInfo.name)
+//         console.log("Object.keys(userInfo): ", Object.keys(userInfo))
+//         console.log("Object.keys(userInfo).length: ", Object.keys(userInfo).length)
+//     try {
+//         // if(userInfo && Object.keys(userInfo).length > 0) {
+//         if(userInfo.name.length >0) {
+//             const user = await Users.insert(userInfo)
+//             console.log("new user just added to Users table")
+//             next()
+//         } else if(!userInfo) {
+//             res.status(400).json({message: 'Missing user data'})
+//         } else if(!userInfo.name) {
+//             res.status(400).json({message: 'Missing required name field'})
+//         }
+//     } catch(error) {
+//         res.status(500).json(error)
+//     }
+// };
 
 async function validatePost(req, res, next) {
     try {
