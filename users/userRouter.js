@@ -5,7 +5,7 @@ const Posts = require('../posts/postDb.js')
 const router = express.Router();
 
 router.post('/', validateUser, async (req, res) => {
-    const postInfo = {...req.body, user_id: req.params.id}
+    
     try {
         const user = await Users.insert(req.body)
         if (user) {
@@ -20,17 +20,29 @@ router.post('/', validateUser, async (req, res) => {
     }
 });
 
-router.post('/:id/posts', validateUserId, async (req, res) => {
+router.post('/:id/posts', validateUserId, validatePost, async (req, res) => {
+    const postInfo = {...req.body, user_id: req.params.id}
+
     try {
+        const post = await Posts.insert(postInfo);
+        res.status(210).json(post);
+    } catch (error) {
+        // log error to server
+        console.log(error);
+        res.status(500).json({
+        message: 'Error getting the messages for the hub',
+        });
+    }
+    // try {
       
 
        
-        res.status(201).json(post)
-    } catch(error) {
-        res.status(500).json({
-            message: 'There was an error adding the post'
-        })
-    }
+    //     res.status(201).json(post)
+    // } catch(error) {
+    //     res.status(500).json({
+    //         message: 'There was an error adding the post'
+    //     })
+    // }
 });
 
 router.get('/', async (req, res) => {
@@ -137,7 +149,8 @@ async function validateUser(req, res, next) {
     }
 };
 
-// async function validateUser(req, res, next) {
+// helped me figure out middleware issue
+//async function validateUser(req, res, next) {
 //     console.log("validateUser invoked")
 //         const userInfo = req.body
 //         console.log("userInfo: ", userInfo.name)
@@ -169,7 +182,7 @@ async function validatePost(req, res, next) {
             res.status(400).json({
                 message: 'Missing post data'
             })
-        } if(!body.text) {
+        } if(body.text === "") {
             res.status(400).json({
                 message: 'Missing required text field'
             })
